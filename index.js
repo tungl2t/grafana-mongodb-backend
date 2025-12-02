@@ -44,6 +44,7 @@ app.post('/query', async (req, res) => {
           results.push({
             value: count
           });
+          break;
         case "need_count":
           const needCount = await Need.countDocuments({
             Active: true, Status: {$in: [1, 2]}
@@ -51,6 +52,13 @@ app.post('/query', async (req, res) => {
           results.push({
             value: needCount
           });
+          break;
+        case "total_candidates":
+          const totalCandidates = await Candidate.countDocuments({});
+          results.push({
+            value: totalCandidates
+          });
+          break;
       }
     }
     res.json(results);
