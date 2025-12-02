@@ -33,10 +33,7 @@ app.post('/query', async (req, res) => {
       switch (t.target) {
         case "avg_status_duration":
           const durations = await getAverageDurations();
-          results.push(...durations.map(d => ({
-            label: d.label,
-            value: d.avgHours,
-          })));
+          results.push(...durations);
           break;
         case "candidate_from_platform":
           const count = await Candidate.countDocuments({

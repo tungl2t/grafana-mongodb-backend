@@ -16,6 +16,7 @@ const CandidateNeedMatchSchema = new mongoose.Schema(
     StatusHistory: [StatusChangeSchema],
     MatchStatus: Number,
     ListId: Buffer,
+    CandidateLikeDate: Date,
   },
   {collection: "CandidateNeedMatches"}
 );

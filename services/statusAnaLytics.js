@@ -1,10 +1,40 @@
 const CandidateNeedMatch = require("../models/candidateNeedMatch");
+const MatchList = require("../models/matchList");
 
 async function getAverageDurations() {
   return CandidateNeedMatch.aggregate([
-    {$match: {StatusHistory: {$exists: true, $ne: []}}},
-
-    {$project: {StatusHistory: 1}},
+    {$match: {ListId: {$ne: null}}},
+    {
+      $lookup: {
+        from: "MatchLists",
+        localField: "ListId",
+        foreignField: "_id",
+        as: "matchList",
+      },
+    },
+    {
+      $unwind: {
+        path: "$matchList",
+        preserveNullAndEmptyArrays: false,
+      },
+    },
+    {
+      $addFields: {
+        CreationDate: "$matchList.CreationDate",
+      },
+    },
+    {
+      $match: {
+        StatusHistory: {$exists: true, $ne: []},
+      },
+    },
+    {
+      $project: {
+        StatusHistory: 1,
+        CandidateLikeDate: 1,
+        CreationDate: 1,
+      },
+    },
     {
       $addFields: {
         firstColumn: {
@@ -56,80 +86,56 @@ async function getAverageDurations() {
             0,
           ],
         },
-        lastFifthColumn: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: {$reverseArray: "$StatusHistory"},
-                cond: {$eq: ["$$this.To", 6]},
-              },
-            },
-            0,
-          ],
-        },
       },
     },
     {
       $project: {
         durations: {
+          "From Platform to 1st Column": {
+            $cond: [
+              {
+                $and: [
+                  {$ne: ["$CandidateLikeDate", null]},
+                  {$ne: ["$CreationDate", null]},
+                ],
+              },
+              {$subtract: ["$CreationDate", "$CandidateLikeDate"]},
+              null,
+            ],
+          },
           "1st to 2nd Column": {
             $cond: [
               {$ne: ["$lastSecondColumn", null]},
-              {
-                $subtract: [
-                  "$lastSecondColumn.ChangedAt",
-                  "$firstColumn.ChangedAt",
-                ],
-              },
+              {$subtract: ["$lastSecondColumn.ChangedAt", "$firstColumn.ChangedAt"]},
               null,
             ],
           },
           "1st to 3rd Column": {
             $cond: [
               {$ne: ["$lastThirdColumn", null]},
-              {
-                $subtract: [
-                  "$lastThirdColumn.ChangedAt",
-                  "$firstColumn.ChangedAt",
-                ],
-              },
+              {$subtract: ["$lastThirdColumn.ChangedAt", "$firstColumn.ChangedAt"]},
               null,
             ],
           },
           "1st to 4th Column": {
             $cond: [
               {$ne: ["$lastFourthColumn", null]},
-              {
-                $subtract: [
-                  "$lastFourthColumn.ChangedAt",
-                  "$firstColumn.ChangedAt",
-                ],
-              },
-              null,
-            ],
-          },
-          "1st to 5th Column": {
-            $cond: [
-              {$ne: ["$lastFifthColumn", null]},
-              {
-                $subtract: [
-                  "$lastFifthColumn.ChangedAt",
-                  "$firstColumn.ChangedAt",
-                ],
-              },
+              {$subtract: ["$lastFourthColumn.ChangedAt", "$firstColumn.ChangedAt"]},
               null,
             ],
           },
         },
       },
     },
-    {
-      $project: {
-        durations: {$objectToArray: "$durations"},
-      },
-    },
+    {$project: {durations: {$objectToArray: "$durations"}}},
     {$unwind: "$durations"},
-    {$match: {"durations.v": {$ne: null}}},
+    {
+      $addFields: {
+        "durations.v": {
+          $cond: [{$eq: ["$durations.v", null]}, 0, "$durations.v"]
+        }
+      }
+    },
     {
       $group: {
         _id: "$durations.k",
@@ -139,10 +145,32 @@ async function getAverageDurations() {
     {
       $project: {
         label: "$_id",
-        avgHours: {$divide: ["$avgDurationMs", 1000 * 60 * 60]},
+        value: {
+          $round: [
+            {$divide: ["$avgDurationMs", 1000 * 60 * 60]},
+            2
+          ]
+        },
         _id: 0,
       },
     },
+    {
+      $addFields: {
+        sortIndex: {
+          $switch: {
+            branches: [
+              {case: {$eq: ["$label", "From Platform to 1st Column"]}, then: 1},
+              {case: {$eq: ["$label", "1st to 2nd Column"]}, then: 2},
+              {case: {$eq: ["$label", "1st to 3rd Column"]}, then: 3},
+              {case: {$eq: ["$label", "1st to 4th Column"]}, then: 4},
+            ],
+            default: 999
+          }
+        }
+      }
+    },
+    {$sort: {sortIndex: 1}},
+    {$project: {sortIndex: 0}}
   ]);
 }
 
