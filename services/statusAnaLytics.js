@@ -1,5 +1,4 @@
 const CandidateNeedMatch = require("../models/candidateNeedMatch");
-const MatchList = require("../models/matchList");
 
 async function getAverageDurations() {
   return CandidateNeedMatch.aggregate([
@@ -174,4 +173,59 @@ async function getAverageDurations() {
   ]);
 }
 
-module.exports = {getAverageDurations};
+async function getTotalFromPlatformToFirstColumn() {
+  return CandidateNeedMatch.aggregate([
+    {$match: {ListId: {$ne: null}}},
+    {
+      $lookup: {
+        from: "MatchLists",
+        localField: "ListId",
+        foreignField: "_id",
+        as: "matchList",
+      },
+    },
+    {
+      $unwind: {
+        path: "$matchList",
+        preserveNullAndEmptyArrays: false,
+      },
+    },
+    {
+      $addFields: {
+        CreationDate: "$matchList.CreationDate",
+      },
+    },
+    {
+      $match: {
+        CandidateLikeDate: {$ne: null},
+        CreationDate: {$ne: null},
+      },
+    },
+    {
+      $project: {
+        durationMs: {$subtract: ["$CreationDate", "$CandidateLikeDate"]}
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalDurationMs: {$sum: "$durationMs"}
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        value: {
+          $round: [
+            {$divide: ["$totalDurationMs", 1000 * 60 * 60]},
+            2
+          ],
+
+        }
+      },
+    },
+  ]);
+}
+
+
+module.exports = {getAverageDurations, getTotalFromPlatformToFirstColumn};
