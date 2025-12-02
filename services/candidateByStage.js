@@ -4,7 +4,7 @@ async function getNumberOfCandidatesByStage() {
   const statuses = [0, 2, 4, 5];
 
   const result = await CandidateNeedMatch.aggregate([
-    {$match: {MatchStatus: {$in: statuses}}},
+    {$match: {MatchStatus: {$in: statuses}, ListId: {$ne: null}}},
     {$group: {_id: "$MatchStatus", count: {$sum: 1}}}
   ]);
 
