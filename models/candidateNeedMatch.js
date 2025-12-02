@@ -14,6 +14,7 @@ const StatusChangeSchema = new mongoose.Schema(
 const CandidateNeedMatchSchema = new mongoose.Schema(
   {
     StatusHistory: [StatusChangeSchema],
+    MatchStatus: Number
   },
   {collection: "CandidateNeedMatches"}
 );

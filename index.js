@@ -6,6 +6,7 @@ const cors = require('cors');
 const {getAverageDurations} = require("./services/statusAnaLytics");
 const Candidate = require("./models/candidate");
 const Need = require("./models/need");
+const {getNumberOfCandidatesByStage} = require("./services/candidateByStage");
 const PORT = process.env.PORT || 3001;
 const app = express();
 app.use(helmet());
@@ -58,6 +59,10 @@ app.post('/query', async (req, res) => {
           results.push({
             value: totalCandidates
           });
+          break;
+        case "candidates_by_stage":
+         const numberOfCandidatesByStage = await getNumberOfCandidatesByStage()
+          results.push(...numberOfCandidatesByStage);
           break;
       }
     }
