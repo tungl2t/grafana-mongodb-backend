@@ -175,7 +175,7 @@ async function getAverageDurations() {
 
 async function getTotalFromPlatformToFirstColumn() {
   return CandidateNeedMatch.aggregate([
-    {$match: {ListId: {$ne: null}}},
+    {$match: {ListId: {$ne: null}, CandidateLikeDate: { $gte: new Date("2025-12-01T00:00:00.000Z") }}},
     {
       $lookup: {
         from: "MatchLists",
