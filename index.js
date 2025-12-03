@@ -26,8 +26,8 @@ app.get('/', (req, res) => {
 app.post('/query', async (req, res) => {
 
   try {
+    console.log(req.body);
     const {targets} = req.body;
-    const now = Date.now();
     let results = [];
     for (const t of targets) {
       switch (t.target) {
