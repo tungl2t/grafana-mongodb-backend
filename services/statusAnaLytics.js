@@ -1,8 +1,16 @@
 const CandidateNeedMatch = require("../models/candidateNeedMatch");
 
-async function getAverageDurations() {
+async function getAverageDurations(from, to) {
   return CandidateNeedMatch.aggregate([
-    { $match: { ListId: { $ne: null } } },
+    {
+      $match: {
+        ListId: { $ne: null },
+        CandidateLikeDate: {
+          $gte: new Date(from),
+          $lte: new Date(to),
+        },
+      },
+    },
     {
       $lookup: {
         from: "MatchLists",
@@ -173,9 +181,17 @@ async function getAverageDurations() {
   ]);
 }
 
-async function getTotalFromPlatformToFirstColumn() {
+async function getTotalFromPlatformToFirstColumn(from, to) {
   return CandidateNeedMatch.aggregate([
-    { $match: { ListId: { $ne: null }, CandidateLikeDate: { $gte: new Date("2025-12-01T00:00:00.000Z") } } },
+    {
+      $match: {
+        ListId: { $ne: null },
+        CandidateLikeDate: {
+          $gte: new Date(from),
+          $lte: new Date(to),
+        },
+      },
+    },
     {
       $lookup: {
         from: "MatchLists",

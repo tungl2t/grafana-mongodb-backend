@@ -1,10 +1,19 @@
 const CandidateNeedMatch = require("../models/candidateNeedMatch");
 
-async function getNumberOfCandidatesByStage() {
+async function getNumberOfCandidatesByStage(from, to) {
   const statuses = [0, 2, 4, 5];
 
   const result = await CandidateNeedMatch.aggregate([
-    { $match: { MatchStatus: { $in: statuses }, ListId: { $ne: null } } },
+    {
+      $match: {
+        MatchStatus: { $in: statuses },
+        ListId: { $ne: null },
+        CandidateLikeDate: {
+          $gte: new Date(from),
+          $lte: new Date(to),
+        },
+      },
+    },
     { $group: { _id: "$MatchStatus", count: { $sum: 1 } } },
   ]);
 

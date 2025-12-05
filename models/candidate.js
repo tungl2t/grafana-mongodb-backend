@@ -4,6 +4,7 @@ const { candidateConnection } = require("../mongoConnections");
 const CandidateSchema = new mongoose.Schema(
   {
     Platform: String,
+    RegistrationDate: Date,
   },
   { collection: "Candidates" },
 );

@@ -4,6 +4,7 @@ const { orgConnection } = require("../mongoConnections");
 const NeedSchema = new mongoose.Schema(
   {
     Status: Number,
+    CreationDate: Date,
   },
   { collection: "Needs" },
 );
