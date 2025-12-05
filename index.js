@@ -9,6 +9,7 @@ const { getNumberOfCandidatesByStage } = require("./services/candidateByStage");
 const { countRegisteredUsers } = require("./services/countRegisteredUsers");
 const Candidate = require("./models/candidate");
 const Need = require("./models/need");
+const { countCV } = require('./services/countNumberOfUploadedCV');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -72,6 +73,13 @@ app.post('/query', async (req, res) => {
           const totalRegisteredUsers = await countRegisteredUsers(from, to);
           results.push({
             value: totalRegisteredUsers
+          });
+          break;
+
+        case "number_of_uploaded_cv":
+          const totalCV = await countCV(from, to);
+          results.push({
+            value: totalCV
           });
           break;
       }
