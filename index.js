@@ -9,6 +9,7 @@ const { getNumberOfCandidatesByStage } = require("./services/candidateByStage");
 const { countRegisteredUsers } = require("./services/countRegisteredUsers");
 const { countCV } = require("./services/entityDocumentService");
 const { getAllRecruiters } = require("./services/organizationService");
+const { getMatchListByRecruiter } = require("./services/matchListService");
 const Candidate = require("./models/candidate");
 const Need = require("./models/need");
 
@@ -82,6 +83,10 @@ app.post("/query", async (req, res) => {
           results.push({
             value: totalCV,
           });
+          break;
+        case "candidates_by_recruiter":
+          const cbr = await getMatchListByRecruiter(req.body.recruiters, from, to);
+          results.push(...cbr);
           break;
       }
     }

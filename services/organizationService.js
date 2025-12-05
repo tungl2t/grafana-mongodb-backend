@@ -8,7 +8,10 @@ async function getAllRecruiters() {
     if (!org.Recruiters) continue;
 
     for (const r of org.Recruiters) {
-      const id = convertLegacyUUID(r._id.toString('base64'));
+      if (!r.Name || String(r.Name).trim() === "") {
+        continue;
+      }
+      const id = convertLegacyUUID(r._id.toString("base64"));
       if (!map.has(id)) {
         map.set(id, {
           id,

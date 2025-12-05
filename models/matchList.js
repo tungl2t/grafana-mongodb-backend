@@ -5,6 +5,8 @@ const MatchListSchema = new mongoose.Schema(
   {
     _id: Buffer,
     CreationDate: Date,
+    NProfile: Number,
+    CreatedBy: String,
   },
   { collection: "MatchLists" },
 );
