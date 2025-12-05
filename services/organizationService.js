@@ -13,7 +13,6 @@ async function getAllRecruiters() {
         map.set(id, {
           id,
           name: r.Name,
-          email: r.Email,
         });
       }
     }
