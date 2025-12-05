@@ -5,7 +5,7 @@ const CandidateSchema = new mongoose.Schema(
   {
     Platform: String,
   },
-  { collection: "Candidates" }
+  { collection: "Candidates" },
 );
 
 module.exports = candidateConnection.model("Candidates", CandidateSchema);

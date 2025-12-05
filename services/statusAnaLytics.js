@@ -131,9 +131,9 @@ async function getAverageDurations() {
     {
       $addFields: {
         "durations.v": {
-          $cond: [{ $eq: ["$durations.v", null] }, 0, "$durations.v"]
-        }
-      }
+          $cond: [{ $eq: ["$durations.v", null] }, 0, "$durations.v"],
+        },
+      },
     },
     {
       $group: {
@@ -147,8 +147,8 @@ async function getAverageDurations() {
         value: {
           $round: [
             { $divide: ["$avgDurationMs", 1000 * 60 * 60] },
-            2
-          ]
+            2,
+          ],
         },
         _id: 0,
       },
@@ -163,13 +163,13 @@ async function getAverageDurations() {
               { case: { $eq: ["$label", "1st to 3rd Column"] }, then: 3 },
               { case: { $eq: ["$label", "1st to 4th Column"] }, then: 4 },
             ],
-            default: 999
-          }
-        }
-      }
+            default: 999,
+          },
+        },
+      },
     },
     { $sort: { sortIndex: 1 } },
-    { $project: { sortIndex: 0 } }
+    { $project: { sortIndex: 0 } },
   ]);
 }
 
@@ -203,13 +203,13 @@ async function getTotalFromPlatformToFirstColumn() {
     },
     {
       $project: {
-        durationMs: { $subtract: ["$CreationDate", "$CandidateLikeDate"] }
+        durationMs: { $subtract: ["$CreationDate", "$CandidateLikeDate"] },
       },
     },
     {
       $group: {
         _id: null,
-        totalDurationMs: { $sum: "$durationMs" }
+        totalDurationMs: { $sum: "$durationMs" },
       },
     },
     {
@@ -218,10 +218,10 @@ async function getTotalFromPlatformToFirstColumn() {
         value: {
           $round: [
             { $divide: ["$totalDurationMs", 1000 * 60 * 60] },
-            2
+            2,
           ],
 
-        }
+        },
       },
     },
   ]);

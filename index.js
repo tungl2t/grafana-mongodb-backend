@@ -1,34 +1,31 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
+const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
 
 const { getAverageDurations, getTotalFromPlatformToFirstColumn } = require("./services/statusAnaLytics");
 const { getNumberOfCandidatesByStage } = require("./services/candidateByStage");
 const { countRegisteredUsers } = require("./services/countRegisteredUsers");
+const { countCV } = require("./services/entityDocumentService");
+const { getAllRecruiters } = require("./services/organizationService");
 const Candidate = require("./models/candidate");
 const Need = require("./models/need");
-const { countCV } = require('./services/countNumberOfUploadedCV');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 app.use(helmet());
-app.disable('x-powered-by');
+app.disable("x-powered-by");
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  origin: "*", methods: ["GET", "POST", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization", "Accept"],
 }));
 app.use(express.json());
-app.get('/', (req, res) => {
-  console.log('GET /: Connection test successful.');
-  res.status(200).send('OK');
+app.get("/", (req, res) => {
+  console.log("GET /: Connection test successful.");
+  res.status(200).send("OK");
 });
 
-
-app.post('/query', async (req, res) => {
-
+app.post("/query", async (req, res) => {
   try {
     console.log(req.body);
     const { targets, from, to } = req.body;
@@ -41,45 +38,45 @@ app.post('/query', async (req, res) => {
           break;
         case "candidate_from_platform":
           const count = await Candidate.countDocuments({
-            Platform: { $exists: true, $eq: "jobs.matchguru.it" }
+            Platform: { $exists: true, $eq: "jobs.matchguru.it" },
           });
           results.push({
-            value: count
+            value: count,
           });
           break;
         case "need_count":
           const needCount = await Need.countDocuments({
-            Active: true, Status: { $in: [1, 2] }
+            Active: true, Status: { $in: [1, 2] },
           });
           results.push({
-            value: needCount
+            value: needCount,
           });
           break;
         case "total_candidates":
           const totalCandidates = await Candidate.countDocuments({});
           results.push({
-            value: totalCandidates
+            value: totalCandidates,
           });
           break;
         case "candidates_by_stage":
-          const numberOfCandidatesByStage = await getNumberOfCandidatesByStage()
+          const numberOfCandidatesByStage = await getNumberOfCandidatesByStage();
           results.push(...numberOfCandidatesByStage);
           break;
         case "time_to_first_shortlist":
-          const totalTime = await getTotalFromPlatformToFirstColumn()
+          const totalTime = await getTotalFromPlatformToFirstColumn();
           results.push(...totalTime);
           break;
         case "number_of_registered_user":
           const totalRegisteredUsers = await countRegisteredUsers(from, to);
           results.push({
-            value: totalRegisteredUsers
+            value: totalRegisteredUsers,
           });
           break;
 
         case "number_of_uploaded_cv":
           const totalCV = await countCV(from, to);
           results.push({
-            value: totalCV
+            value: totalCV,
           });
           break;
       }
@@ -92,10 +89,14 @@ app.post('/query', async (req, res) => {
   }
 });
 
+app.get("/recruiters", async (req, res) => {
+  const result = await getAllRecruiters();
+  res.json(result);
+})
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).send("Something broke!");
 });
 
 
