@@ -85,7 +85,7 @@ app.post("/query", async (req, res) => {
           });
           break;
         case "candidates_by_recruiter":
-          const cbr = await getMatchListByRecruiter(req.body.recruiters, from, to);
+          const cbr = await getMatchListByRecruiter(req.body.recruiters);
           results.push(...cbr);
           break;
       }

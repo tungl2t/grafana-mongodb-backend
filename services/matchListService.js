@@ -1,7 +1,7 @@
 const MatchList = require("../models/matchList");
 const { getAllRecruiters } = require("./organizationService");
 
-async function getMatchListByRecruiter(recruiters, from, to) {
+async function getMatchListByRecruiter(recruiters) {
   const allRecruiters = await getAllRecruiters();
   let recruiterList = allRecruiters.map(r => r.id);
   if (recruiters && recruiters !== "*") {
@@ -11,21 +11,8 @@ async function getMatchListByRecruiter(recruiters, from, to) {
       .split(",")
       .map((s) => s.trim());
   }
-  const recruiterMatch = {
-    CreatedBy: { $in: recruiterList },
-  };
-  let dateMatch = {};
-  if (from && to) {
-    dateMatch = {
-      CreationDate: {
-        $gte: new Date(from),
-        $lte: new Date(to),
-      },
-    };
-  }
-
   const aggregated = await MatchList.aggregate([
-    { $match: { ...recruiterMatch, ...dateMatch } },
+    { $match: { CreatedBy: { $in: recruiterList } } },
     {
       $group: {
         _id: "$CreatedBy",
