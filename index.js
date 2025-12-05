@@ -68,7 +68,7 @@ app.post("/query", async (req, res) => {
           break;
         case "time_to_first_shortlist":
           const totalTime = await getTotalFromPlatformToFirstColumn(from, to);
-          results.push(...totalTime);
+          results.push(totalTime);
           break;
         case "number_of_registered_user":
           const totalRegisteredUsers = await countRegisteredUsers(from, to);

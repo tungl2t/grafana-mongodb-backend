@@ -182,7 +182,7 @@ async function getAverageDurations(from, to) {
 }
 
 async function getTotalFromPlatformToFirstColumn(from, to) {
-  return CandidateNeedMatch.aggregate([
+  const result = await CandidateNeedMatch.aggregate([
     {
       $match: {
         ListId: { $ne: null },
@@ -241,6 +241,7 @@ async function getTotalFromPlatformToFirstColumn(from, to) {
       },
     },
   ]);
+  return result[0] || { value: 0 };
 }
 
 
