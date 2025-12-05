@@ -4,8 +4,8 @@ async function getNumberOfCandidatesByStage() {
   const statuses = [0, 2, 4, 5];
 
   const result = await CandidateNeedMatch.aggregate([
-    {$match: {MatchStatus: {$in: statuses}, ListId: {$ne: null}}},
-    {$group: {_id: "$MatchStatus", count: {$sum: 1}}}
+    { $match: { MatchStatus: { $in: statuses }, ListId: { $ne: null } } },
+    { $group: { _id: "$MatchStatus", count: { $sum: 1 } } }
   ]);
 
   const labelMap = {
@@ -21,4 +21,4 @@ async function getNumberOfCandidatesByStage() {
   }));
 }
 
-module.exports = {getNumberOfCandidatesByStage};
+module.exports = { getNumberOfCandidatesByStage };

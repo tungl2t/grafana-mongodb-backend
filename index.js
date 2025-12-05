@@ -3,10 +3,13 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const {getAverageDurations, getTotalFromPlatformToFirstColumn} = require("./services/statusAnaLytics");
+
+const { getAverageDurations, getTotalFromPlatformToFirstColumn } = require("./services/statusAnaLytics");
+const { getNumberOfCandidatesByStage } = require("./services/candidateByStage");
+const { countRegisteredUsers } = require("./services/countRegisteredUsers");
 const Candidate = require("./models/candidate");
 const Need = require("./models/need");
-const {getNumberOfCandidatesByStage} = require("./services/candidateByStage");
+
 const PORT = process.env.PORT || 3001;
 const app = express();
 app.use(helmet());
@@ -27,7 +30,7 @@ app.post('/query', async (req, res) => {
 
   try {
     console.log(req.body);
-    const {targets} = req.body;
+    const { targets, from, to } = req.body;
     let results = [];
     for (const t of targets) {
       switch (t.target) {
@@ -37,7 +40,7 @@ app.post('/query', async (req, res) => {
           break;
         case "candidate_from_platform":
           const count = await Candidate.countDocuments({
-            Platform: {$exists: true, $eq: "jobs.matchguru.it"}
+            Platform: { $exists: true, $eq: "jobs.matchguru.it" }
           });
           results.push({
             value: count
@@ -45,7 +48,7 @@ app.post('/query', async (req, res) => {
           break;
         case "need_count":
           const needCount = await Need.countDocuments({
-            Active: true, Status: {$in: [1, 2]}
+            Active: true, Status: { $in: [1, 2] }
           });
           results.push({
             value: needCount
@@ -65,13 +68,19 @@ app.post('/query', async (req, res) => {
           const totalTime = await getTotalFromPlatformToFirstColumn()
           results.push(...totalTime);
           break;
+        case "number_of_registered_user":
+          const totalRegisteredUsers = await countRegisteredUsers(from, to);
+          results.push({
+            value: totalRegisteredUsers
+          });
+          break;
       }
     }
     res.json(results);
 
   } catch (error) {
     console.error("Error running aggregation:", error);
-    res.status(500).json({error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 

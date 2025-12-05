@@ -2,7 +2,7 @@ const CandidateNeedMatch = require("../models/candidateNeedMatch");
 
 async function getAverageDurations() {
   return CandidateNeedMatch.aggregate([
-    {$match: {ListId: {$ne: null}}},
+    { $match: { ListId: { $ne: null } } },
     {
       $lookup: {
         from: "MatchLists",
@@ -24,7 +24,7 @@ async function getAverageDurations() {
     },
     {
       $match: {
-        StatusHistory: {$exists: true, $ne: []},
+        StatusHistory: { $exists: true, $ne: [] },
       },
     },
     {
@@ -41,7 +41,7 @@ async function getAverageDurations() {
             {
               $filter: {
                 input: "$StatusHistory",
-                cond: {$eq: ["$$this.From", 0]},
+                cond: { $eq: ["$$this.From", 0] },
               },
             },
             0,
@@ -49,15 +49,15 @@ async function getAverageDurations() {
         },
       },
     },
-    {$match: {firstColumn: {$exists: true, $ne: null}}},
+    { $match: { firstColumn: { $exists: true, $ne: null } } },
     {
       $addFields: {
         lastSecondColumn: {
           $arrayElemAt: [
             {
               $filter: {
-                input: {$reverseArray: "$StatusHistory"},
-                cond: {$eq: ["$$this.To", 2]},
+                input: { $reverseArray: "$StatusHistory" },
+                cond: { $eq: ["$$this.To", 2] },
               },
             },
             0,
@@ -67,8 +67,8 @@ async function getAverageDurations() {
           $arrayElemAt: [
             {
               $filter: {
-                input: {$reverseArray: "$StatusHistory"},
-                cond: {$eq: ["$$this.To", 4]},
+                input: { $reverseArray: "$StatusHistory" },
+                cond: { $eq: ["$$this.To", 4] },
               },
             },
             0,
@@ -78,8 +78,8 @@ async function getAverageDurations() {
           $arrayElemAt: [
             {
               $filter: {
-                input: {$reverseArray: "$StatusHistory"},
-                cond: {$eq: ["$$this.To", 5]},
+                input: { $reverseArray: "$StatusHistory" },
+                cond: { $eq: ["$$this.To", 5] },
               },
             },
             0,
@@ -94,51 +94,51 @@ async function getAverageDurations() {
             $cond: [
               {
                 $and: [
-                  {$ne: ["$CandidateLikeDate", null]},
-                  {$ne: ["$CreationDate", null]},
+                  { $ne: ["$CandidateLikeDate", null] },
+                  { $ne: ["$CreationDate", null] },
                 ],
               },
-              {$subtract: ["$CreationDate", "$CandidateLikeDate"]},
+              { $subtract: ["$CreationDate", "$CandidateLikeDate"] },
               null,
             ],
           },
           "1st to 2nd Column": {
             $cond: [
-              {$ne: ["$lastSecondColumn", null]},
-              {$subtract: ["$lastSecondColumn.ChangedAt", "$firstColumn.ChangedAt"]},
+              { $ne: ["$lastSecondColumn", null] },
+              { $subtract: ["$lastSecondColumn.ChangedAt", "$firstColumn.ChangedAt"] },
               null,
             ],
           },
           "1st to 3rd Column": {
             $cond: [
-              {$ne: ["$lastThirdColumn", null]},
-              {$subtract: ["$lastThirdColumn.ChangedAt", "$firstColumn.ChangedAt"]},
+              { $ne: ["$lastThirdColumn", null] },
+              { $subtract: ["$lastThirdColumn.ChangedAt", "$firstColumn.ChangedAt"] },
               null,
             ],
           },
           "1st to 4th Column": {
             $cond: [
-              {$ne: ["$lastFourthColumn", null]},
-              {$subtract: ["$lastFourthColumn.ChangedAt", "$firstColumn.ChangedAt"]},
+              { $ne: ["$lastFourthColumn", null] },
+              { $subtract: ["$lastFourthColumn.ChangedAt", "$firstColumn.ChangedAt"] },
               null,
             ],
           },
         },
       },
     },
-    {$project: {durations: {$objectToArray: "$durations"}}},
-    {$unwind: "$durations"},
+    { $project: { durations: { $objectToArray: "$durations" } } },
+    { $unwind: "$durations" },
     {
       $addFields: {
         "durations.v": {
-          $cond: [{$eq: ["$durations.v", null]}, 0, "$durations.v"]
+          $cond: [{ $eq: ["$durations.v", null] }, 0, "$durations.v"]
         }
       }
     },
     {
       $group: {
         _id: "$durations.k",
-        avgDurationMs: {$avg: "$durations.v"},
+        avgDurationMs: { $avg: "$durations.v" },
       },
     },
     {
@@ -146,7 +146,7 @@ async function getAverageDurations() {
         label: "$_id",
         value: {
           $round: [
-            {$divide: ["$avgDurationMs", 1000 * 60 * 60]},
+            { $divide: ["$avgDurationMs", 1000 * 60 * 60] },
             2
           ]
         },
@@ -158,24 +158,24 @@ async function getAverageDurations() {
         sortIndex: {
           $switch: {
             branches: [
-              {case: {$eq: ["$label", "From Platform to 1st Column"]}, then: 1},
-              {case: {$eq: ["$label", "1st to 2nd Column"]}, then: 2},
-              {case: {$eq: ["$label", "1st to 3rd Column"]}, then: 3},
-              {case: {$eq: ["$label", "1st to 4th Column"]}, then: 4},
+              { case: { $eq: ["$label", "From Platform to 1st Column"] }, then: 1 },
+              { case: { $eq: ["$label", "1st to 2nd Column"] }, then: 2 },
+              { case: { $eq: ["$label", "1st to 3rd Column"] }, then: 3 },
+              { case: { $eq: ["$label", "1st to 4th Column"] }, then: 4 },
             ],
             default: 999
           }
         }
       }
     },
-    {$sort: {sortIndex: 1}},
-    {$project: {sortIndex: 0}}
+    { $sort: { sortIndex: 1 } },
+    { $project: { sortIndex: 0 } }
   ]);
 }
 
 async function getTotalFromPlatformToFirstColumn() {
   return CandidateNeedMatch.aggregate([
-    {$match: {ListId: {$ne: null}, CandidateLikeDate: { $gte: new Date("2025-12-01T00:00:00.000Z") }}},
+    { $match: { ListId: { $ne: null }, CandidateLikeDate: { $gte: new Date("2025-12-01T00:00:00.000Z") } } },
     {
       $lookup: {
         from: "MatchLists",
@@ -197,19 +197,19 @@ async function getTotalFromPlatformToFirstColumn() {
     },
     {
       $match: {
-        CandidateLikeDate: {$ne: null},
-        CreationDate: {$ne: null},
+        CandidateLikeDate: { $ne: null },
+        CreationDate: { $ne: null },
       },
     },
     {
       $project: {
-        durationMs: {$subtract: ["$CreationDate", "$CandidateLikeDate"]}
+        durationMs: { $subtract: ["$CreationDate", "$CandidateLikeDate"] }
       },
     },
     {
       $group: {
         _id: null,
-        totalDurationMs: {$sum: "$durationMs"}
+        totalDurationMs: { $sum: "$durationMs" }
       },
     },
     {
@@ -217,7 +217,7 @@ async function getTotalFromPlatformToFirstColumn() {
         _id: 0,
         value: {
           $round: [
-            {$divide: ["$totalDurationMs", 1000 * 60 * 60]},
+            { $divide: ["$totalDurationMs", 1000 * 60 * 60] },
             2
           ],
 
@@ -228,4 +228,4 @@ async function getTotalFromPlatformToFirstColumn() {
 }
 
 
-module.exports = {getAverageDurations, getTotalFromPlatformToFirstColumn};
+module.exports = { getAverageDurations, getTotalFromPlatformToFirstColumn };

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const {orgConnection} = require("../mongoConnections");
+const { orgConnection } = require("../mongoConnections");
 
 const StatusChangeSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const StatusChangeSchema = new mongoose.Schema(
     ChangedAt: Date,
     ChangedBy: String,
   },
-  {_id: false}
+  { _id: false }
 );
 
 const CandidateNeedMatchSchema = new mongoose.Schema(
@@ -18,7 +18,7 @@ const CandidateNeedMatchSchema = new mongoose.Schema(
     ListId: Buffer,
     CandidateLikeDate: Date,
   },
-  {collection: "CandidateNeedMatches"}
+  { collection: "CandidateNeedMatches" }
 );
 
 module.exports = orgConnection.model("CandidateNeedMatches", CandidateNeedMatchSchema);
