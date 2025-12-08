@@ -1,6 +1,6 @@
 const CandidateNeedMatch = require("../models/candidateNeedMatch");
 const { getAllOpenNeeds } = require("./needService");
-const { convertLegacyUUID } = require("./helpers");
+const { convertLegacyUUID, trimName } = require("./helpers");
 
 async function getNumberOfCandidatesByStage(from, to) {
   const statuses = [0, 2, 4, 5];
@@ -57,7 +57,7 @@ async function getNumberOfCandidatesByNeed(needs) {
     const id = convertLegacyUUID(n.toString("base64"));
     const needInfo = allNeeds.find(a => a.id === id);
     return {
-      label: needInfo ? needInfo.name : "",
+      label: needInfo ? trimName(needInfo.name?.trim()) : "",
       value: resultMap.get(id) ?? 0,
     };
   });

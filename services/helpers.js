@@ -19,4 +19,10 @@ function convertLegacyUUID(base64) {
   ].join("-");
 }
 
-module.exports = { convertLegacyUUID };
+function trimName(name) {
+  if (!name) return "";
+  if (name.length <= 20) return name;
+  return name.substring(0, 20) + "...";
+}
+
+module.exports = { convertLegacyUUID, trimName };
