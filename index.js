@@ -5,7 +5,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 
 const { getAverageDurations, getTotalFromPlatformToFirstColumn } = require("./services/statusAnaLytics");
-const { getNumberOfCandidatesByStage } = require("./services/candidateByStage");
+const { getNumberOfCandidatesByStage, getNumberOfCandidatesByNeed } = require("./services/candidateNeedMatchService");
 const { countRegisteredUsers } = require("./services/countRegisteredUsers");
 const { countCV } = require("./services/entityDocumentService");
 const { getAllRecruiters } = require("./services/organizationService");
@@ -84,6 +84,10 @@ app.post("/query", async (req, res) => {
         case "candidates_by_recruiter":
           const cbr = await getMatchListByRecruiter(req.body.recruiters);
           results.push(...cbr);
+          break;
+          case "candidates_by_need":
+          const cbn = await getNumberOfCandidatesByNeed(req.body.needs);
+          results.push(...cbn);
           break;
       }
     }

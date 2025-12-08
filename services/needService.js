@@ -13,6 +13,7 @@ async function getAllOpenNeeds(from, to) {
     Active: true, Status: { $in: [1, 2] },
   });
   return results.map(result => ({
+    _id: result._id,
     id: convertLegacyUUID(result._id.toString("base64")),
     name: result.JobTitle || result.Role.Name,
   }));
