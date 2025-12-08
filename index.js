@@ -10,8 +10,8 @@ const { countRegisteredUsers } = require("./services/countRegisteredUsers");
 const { countCV } = require("./services/entityDocumentService");
 const { getAllRecruiters } = require("./services/organizationService");
 const { getMatchListByRecruiter } = require("./services/matchListService");
+const { countOpenNeeds, getAllOpenNeeds } = require("./services/needService");
 const Candidate = require("./models/candidate");
-const Need = require("./models/need");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -47,10 +47,7 @@ app.post("/query", async (req, res) => {
           });
           break;
         case "need_count":
-          const needCount = await Need.countDocuments({
-            Active: true, Status: { $in: [1, 2] },
-            CreationDate: { $gte: new Date(from), $lte: new Date(to) },
-          });
+          const needCount = await countOpenNeeds(from, to);
           results.push({
             value: needCount,
           });
@@ -100,6 +97,11 @@ app.post("/query", async (req, res) => {
 
 app.get("/recruiters", async (req, res) => {
   const result = await getAllRecruiters();
+  res.json(result);
+});
+
+app.get("/open-needs", async (req, res) => {
+  const result = await getAllOpenNeeds();
   res.json(result);
 });
 
