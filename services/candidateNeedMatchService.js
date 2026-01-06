@@ -45,7 +45,7 @@ async function getNumberOfCandidatesByNeed(needs) {
     needList = allNeeds.filter(n => selectedUUIDs.includes(n.id)).map(n => n._id);
   }
   const results = await CandidateNeedMatch.aggregate([
-    { $match: { NeedId: { $in: needList } } },
+    { $match: { NeedId: { $in: needList }, ListId: { $ne: null } } },
     { $group: { _id: "$NeedId", count: { $sum: 1 } } },
   ]);
   const resultMap = new Map();
