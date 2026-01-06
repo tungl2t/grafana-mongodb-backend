@@ -11,6 +11,7 @@ const { countCV } = require("./services/entityDocumentService");
 const { getAllRecruiters } = require("./services/organizationService");
 const { getMatchListByRecruiter } = require("./services/matchListService");
 const { countOpenNeeds, getAllOpenNeeds } = require("./services/needService");
+const { getUsersByRoles } = require("./services/userRoleService");
 const Candidate = require("./models/candidate");
 
 const PORT = process.env.PORT || 3001;
@@ -107,6 +108,15 @@ app.get("/recruiters", async (req, res) => {
 app.get("/open-needs", async (req, res) => {
   const result = await getAllOpenNeeds();
   res.json(result);
+});
+
+app.get("/users-by-roles", async (req, res) => {
+  try {
+    const result = await getUsersByRoles();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.use((err, req, res, next) => {
