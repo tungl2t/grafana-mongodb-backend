@@ -1,18 +1,18 @@
 const MatchList = require("../models/matchList");
 const { getUsersByRoles } = require("./userRoleService");
 
-async function getMatchListByRecruiter(recruiters) {
-  const allRecruiters = await getUsersByRoles();
-  let recruiterList = allRecruiters.map(r => r.id);
-  if (recruiters && recruiters !== "*") {
-    recruiterList = recruiters
+async function getMatchListByUser(users) {
+  const usersByRoles = await getUsersByRoles();
+  let userIds = usersByRoles.map((r) => r.id);
+  if (users && users !== "*") {
+    userIds = users
       .replace("{", "")
       .replace("}", "")
       .split(",")
       .map((s) => s.trim());
   }
   const aggregated = await MatchList.aggregate([
-    { $match: { CreatedBy: { $in: recruiterList } } },
+    { $match: { CreatedBy: { $in: userIds } } },
     {
       $group: {
         _id: "$CreatedBy",
@@ -21,12 +21,10 @@ async function getMatchListByRecruiter(recruiters) {
     },
   ]);
 
-  const aggMap = new Map(
-    aggregated.map(item => [item._id, item.totalNProfile]),
-  );
+  const aggMap = new Map(aggregated.map((item) => [item._id, item.totalNProfile]));
 
-  return recruiterList.map(rid => {
-    const recruiter = allRecruiters.find(r => r.id === rid);
+  return userIds.map((rid) => {
+    const recruiter = usersByRoles.find((r) => r.id === rid);
     return {
       label: recruiter ? recruiter.name : rid,
       value: aggMap.get(rid) ?? 0,
@@ -34,4 +32,4 @@ async function getMatchListByRecruiter(recruiters) {
   });
 }
 
-module.exports = { getMatchListByRecruiter };
+module.exports = { getMatchListByUser };

@@ -9,7 +9,7 @@ const { getNumberOfCandidatesByStage, getNumberOfCandidatesByNeed } = require(".
 const { countRegisteredUsers } = require("./services/countRegisteredUsers");
 const { countCV } = require("./services/entityDocumentService");
 const { getAllRecruiters } = require("./services/organizationService");
-const { getMatchListByRecruiter } = require("./services/matchListService");
+const { getMatchListByUser } = require("./services/matchListService");
 const { countOpenNeeds, getAllOpenNeeds } = require("./services/needService");
 const { getUsersByRoles } = require("./services/userRoleService");
 const Candidate = require("./models/candidate");
@@ -82,11 +82,11 @@ app.post("/query", async (req, res) => {
             value: totalCV,
           });
           break;
-        case "candidates_by_recruiter":
-          const cbr = await getMatchListByRecruiter(req.body.recruiters);
+        case "candidates_by_users":
+          const cbr = await getMatchListByUser(req.body.users);
           results.push(...cbr);
           break;
-          case "candidates_by_need":
+        case "candidates_by_need":
           const cbn = await getNumberOfCandidatesByNeed(req.body.needs);
           results.push(...cbn);
           break;
