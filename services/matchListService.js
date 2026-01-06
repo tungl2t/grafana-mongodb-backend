@@ -1,8 +1,8 @@
 const MatchList = require("../models/matchList");
-const { getAllRecruiters } = require("./organizationService");
+const { getUsersByRoles } = require("./userRoleService");
 
 async function getMatchListByRecruiter(recruiters) {
-  const allRecruiters = await getAllRecruiters();
+  const allRecruiters = await getUsersByRoles();
   let recruiterList = allRecruiters.map(r => r.id);
   if (recruiters && recruiters !== "*") {
     recruiterList = recruiters

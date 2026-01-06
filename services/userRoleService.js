@@ -4,7 +4,14 @@ async function getUsersByRoles() {
   const query = `
     SELECT 
       u."Id" AS id,
-      CONCAT('[', r."Name", '] ', u."Name", ' ', u."Surname") AS name
+      CONCAT('[', 
+        CASE r."Name"
+          WHEN 'ACCOUNTMANAGER' THEN 'Account Manager'
+          WHEN 'COMPANY' THEN 'Company'
+          WHEN 'RECRUITER' THEN 'Recruiter'
+          ELSE r."Name"
+        END,
+        '] ', u."Name", ' ', u."Surname") AS name
     FROM "AspNetUsers" u
     INNER JOIN "AspNetUserRoles" ur ON u."Id" = ur."UserId"
     INNER JOIN "AspNetRoles" r ON ur."RoleId" = r."Id"
