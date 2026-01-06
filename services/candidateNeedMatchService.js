@@ -20,10 +20,10 @@ async function getNumberOfCandidatesByStage(from, to) {
   ]);
 
   const labelMap = {
-    0: "1st Column",
-    2: "2nd Column",
-    4: "3rd Column",
-    5: "4th Column",
+    0: "Da contattare",
+    2: "In attesa di colloquio",
+    4: "Colloquiato",
+    5: "Offerta inviata",
   };
 
   return statuses.map(s => ({
