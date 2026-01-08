@@ -3,6 +3,7 @@ const { candidateConnection } = require("../mongoConnections");
 
 const CandidateSchema = new mongoose.Schema(
   {
+    _id: String,
     Platform: String,
     RegistrationDate: Date,
   },

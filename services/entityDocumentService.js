@@ -1,14 +1,19 @@
 const EntityDocuments = require("../models/entityDocument");
+const Candidate = require("../models/candidate");
 
 async function countCV(from, to) {
+  const candidates = await Candidate.find({
+    RegistrationDate: { $gte: new Date(from), $lte: new Date(to) },
+  });
+  const candidateIds = candidates.map(candidate => candidate._id);
   const pipeline = [
     {
-      $match: { DocumentType: 0 }
+      $match: { DocumentType: 0, EntityId: { $in: candidateIds } },
     },
     {
       $addFields: {
-        rawTicks: { $arrayElemAt: ["$LastModified", 0] }
-      }
+        rawTicks: { $arrayElemAt: ["$LastModified", 0] },
+      },
     },
     {
       $addFields: {
@@ -16,10 +21,10 @@ async function countCV(from, to) {
           $cond: [
             { $isNumber: "$rawTicks" },
             { $toLong: "$rawTicks" },
-            null
-          ]
-        }
-      }
+            null,
+          ],
+        },
+      },
     },
     {
       $addFields: {
@@ -30,15 +35,15 @@ async function countCV(from, to) {
               $toDate: {
                 $divide: [
                   { $subtract: ["$lastModifiedTicks", 621355968000000000] },
-                  10000
-                ]
-              }
+                  10000,
+                ],
+              },
             },
-            null
-          ]
-        }
-      }
-    }
+            null,
+          ],
+        },
+      },
+    },
   ];
 
   if (from && to) {
@@ -46,9 +51,9 @@ async function countCV(from, to) {
       $match: {
         lastModifiedDate: {
           $gte: new Date(from),
-          $lte: new Date(to)
-        }
-      }
+          $lte: new Date(to),
+        },
+      },
     });
   }
 
@@ -57,9 +62,5 @@ async function countCV(from, to) {
   const result = await EntityDocuments.aggregate(pipeline);
   return result.length ? result[0].total : 0;
 }
-
-
-
-
 
 module.exports = { countCV };
