@@ -32,7 +32,7 @@ async function getNumberOfCandidatesByStage(from, to) {
   }));
 }
 
-async function getNumberOfCandidatesByNeed(needs) {
+async function getNumberOfCandidatesByNeed(needs, from, to) {
   const allNeeds = await getAllOpenNeeds();
   let needList = allNeeds.map(n => n._id);
   if (needs && needs !== "*") {
@@ -45,7 +45,16 @@ async function getNumberOfCandidatesByNeed(needs) {
     needList = allNeeds.filter(n => selectedUUIDs.includes(n.id)).map(n => n._id);
   }
   const results = await CandidateNeedMatch.aggregate([
-    { $match: { NeedId: { $in: needList }, ListId: { $ne: null } } },
+    {
+      $match: {
+        NeedId: { $in: needList },
+        ListId: { $ne: null },
+        CandidateLikeDate: {
+          $gte: new Date(from),
+          $lte: new Date(to),
+        },
+      },
+    },
     { $group: { _id: "$NeedId", count: { $sum: 1 } } },
   ]);
   const resultMap = new Map();

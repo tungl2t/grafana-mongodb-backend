@@ -87,7 +87,7 @@ app.post("/query", async (req, res) => {
           results.push(...cbr);
           break;
         case "candidates_by_need":
-          const cbn = await getNumberOfCandidatesByNeed(req.body.needs);
+          const cbn = await getNumberOfCandidatesByNeed(req.body.needs, from, to);
           results.push(...cbn);
           break;
       }
