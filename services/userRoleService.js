@@ -7,7 +7,6 @@ async function getUsersByRoles() {
       CONCAT('[', 
         CASE r."Name"
           WHEN 'ACCOUNTMANAGER' THEN 'Account Manager'
-          WHEN 'COMPANY' THEN 'Company'
           WHEN 'RECRUITER' THEN 'Recruiter'
           WHEN 'ADMIN' THEN 'Admin'
           ELSE r."Name"
@@ -16,7 +15,7 @@ async function getUsersByRoles() {
     FROM "AspNetUsers" u
     INNER JOIN "AspNetUserRoles" ur ON u."Id" = ur."UserId"
     INNER JOIN "AspNetRoles" r ON ur."RoleId" = r."Id"
-    WHERE r."Name" IN ('COMPANY', 'RECRUITER', 'ACCOUNTMANAGER', 'ADMIN')
+    WHERE r."Name" IN ('RECRUITER', 'ACCOUNTMANAGER', 'ADMIN')
       AND u."Name" IS NOT NULL 
       AND u."Name" != ''
     ORDER BY r."Name", u."Name", u."Surname"
