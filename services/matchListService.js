@@ -1,7 +1,7 @@
 const MatchList = require("../models/matchList");
 const { getUsersByRoles } = require("./userRoleService");
 
-async function getMatchListByUser(users) {
+async function getMatchListByUser(users, from, to) {
   const usersByRoles = await getUsersByRoles();
   let userIds = usersByRoles.map((r) => r.id);
   if (users && users !== "*") {
@@ -12,7 +12,7 @@ async function getMatchListByUser(users) {
       .map((s) => s.trim());
   }
   const aggregated = await MatchList.aggregate([
-    { $match: { CreatedBy: { $in: userIds } } },
+    { $match: { CreatedBy: { $in: userIds }, CreationDate: { $gte: new Date(from), $lte: new Date(to) } } },
     {
       $group: {
         _id: "$CreatedBy",
